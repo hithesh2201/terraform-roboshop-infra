@@ -143,8 +143,8 @@ module "vpn" {
 resource "aws_security_group_rule" "app_alb_to_app" {
   count=length(local.app_ids)
   type              = "ingress"
-  from_port         = 8080
-  to_port           = 8080
+  from_port         = 80
+  to_port           = 80
   protocol          = "tcp"
   security_group_id = local.app_ids[count.index]
   source_security_group_id = module.app_alb.sg_id
@@ -160,4 +160,60 @@ resource "aws_security_group_rule" "vpn_home" {
   protocol                 = "-1"
   cidr_blocks = ["0.0.0.0/0"] #ideally your home public IP address, but it frequently changes
 }
+
+resource "aws_security_group_rule" "catalogue_mongodb" {
+  security_group_id = module.catalogue.sg_id
+  type                     = "ingress"
+  from_port                = 27017
+  to_port                  = 27017
+  protocol                 = "tcp"
+  source_security_group_id= data.aws_ssm_parameter.mongo_sg_id.value
+}
+
+resource "aws_security_group_rule" "cart_redis" {
+  security_group_id = module.cart.sg_id
+  type                     = "ingress"
+  from_port                = 6379
+  to_port                  = 6379
+  protocol                 = "tcp"
+  source_security_group_id= data.aws_ssm_parameter.redis_sg_id.value
+}
+
+resource "aws_security_group_rule" "user_mongodb" {
+  security_group_id = module.user.sg_id
+  type                     = "ingress"
+  from_port                = 27017
+  to_port                  = 27107
+  protocol                 = "tcp"
+  source_security_group_id= data.aws_ssm_parameter.mongo_sg_id.value
+}
+
+resource "aws_security_group_rule" "user_redis" {
+  security_group_id = module.user.sg_id
+  type                     = "ingress"
+  from_port                = 6379
+  to_port                  = 6379
+  protocol                 = "tcp"
+  source_security_group_id= data.aws_ssm_parameter.redis_sg_id.value
+}
+
+resource "aws_security_group_rule" "shipping_mysql" {
+  security_group_id = module.shipping.sg_id
+  type                     = "ingress"
+  from_port                = 3306
+  to_port                  = 3306
+  protocol                 = "tcp"
+  source_security_group_id= data.aws_ssm_parameter.mysql_sg_id.value
+}
+
+resource "aws_security_group_rule" "payments_rabbitmq" {
+  security_group_id = module.payments.sg_id
+  type                     = "ingress"
+  from_port                = 5672
+  to_port                  = 5672
+  protocol                 = "tcp"
+  source_security_group_id= data.aws_ssm_parameter.rabbitmq_sg_id.value
+}
+
+
 
