@@ -1,11 +1,4 @@
-resource "aws_ssm_parameter" "vpc_id" {
-  name  = "/${local.project_name}/${local.env}/vpc_id"
-  type  = "String"
-  value = module.vpc.vpc_id
-  lifecycle {
-    create_before_destroy = true
-  }
-}
+
 
 resource "aws_ssm_parameter" "public_subnet_ids" {
     name = "/${local.project_name}/${local.env}/public_subnet_ids"
