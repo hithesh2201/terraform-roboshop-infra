@@ -6,6 +6,10 @@ data "aws_ssm_parameter" "vpc_id" {
 data "aws_vpc" "default" {
   default = true
 }
+output "vpc_defaulut" {
+  value = data.aws_vpc.default.id
+  
+}
 
 data "aws_ssm_parameter" "mongo_sg_id" {
   name = "/${local.project_name}/${local.env}/mongo_sg_id"
