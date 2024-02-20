@@ -1,13 +1,14 @@
 resource "aws_lb_target_group" "catalogue" {
   name        = "catalogue"
-  port        = 80
+  port        = 8080
   protocol    = "HTTP"
   vpc_id      = data.aws_ssm_parameter.vpc_id.value
+  deregistration_delay = 300
 
   health_check {
-    path                = "/"
+    path                = "/health"
     protocol            = "HTTP"
-    port                = "traffic-port"
+    port                = 8080
     interval            = 10
     timeout             = 5
     healthy_threshold   = 2
@@ -103,4 +104,77 @@ resource "null_resource" "terminate_instance" {
   depends_on = [resource.aws_ami_from_instance.take_ami ]
 }
 
+resource "aws_launch_template" "catalogue" {
+  name = "${local.component}-instances"
 
+  image_id = aws_ami_from_instance.take_ami.id
+
+  instance_initiated_shutdown_behavior = "terminate"
+
+  instance_type = "t2.micro"
+  update_default_version = true
+
+  placement {
+    availability_zone = "us-east-1a"
+  }
+
+  vpc_security_group_ids = [data.aws_ssm_parameter.catalogue_sg_id.value]
+
+  tag_specifications {
+    resource_type = "instance"
+
+    tags = {
+      Name = "${local.component}"
+    }
+  }
+}
+
+resource "aws_autoscaling_group" "catalogue" {
+  name                      = "${local.component}"
+  max_size                  = 3
+  min_size                  = 1
+  health_check_grace_period = 60
+  health_check_type         = "ELB"
+  desired_capacity          = 2
+  vpc_zone_identifier       = split(",", data.aws_ssm_parameter.private_subnet_ids.value)
+  target_group_arns = [ aws_lb_target_group.catalogue.arn ]
+  
+  launch_template {
+    id      = aws_launch_template.catalogue.id
+    version = aws_launch_template.catalogue.latest_version
+  }
+
+  instance_refresh {
+    strategy = "Rolling"
+    preferences {
+      min_healthy_percentage = 50
+    }
+    triggers = ["launch_template"]
+  }
+
+  tag {
+    key                 = "Name"
+    value               = "${local.component}"
+    propagate_at_launch = true
+  }
+
+  timeouts {
+    delete = "15m"
+  }
+}
+
+
+
+resource "aws_autoscaling_policy" "catalogue" {
+  autoscaling_group_name = aws_autoscaling_group.catalogue.name
+  name                   = "${local.component}}"
+  policy_type            = "TargetTrackingScaling"
+
+  target_tracking_configuration {
+    predefined_metric_specification {
+      predefined_metric_type = "ASGAverageCPUUtilization"
+    }
+
+    target_value = 5.0
+  }
+}
