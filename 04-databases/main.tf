@@ -24,7 +24,7 @@ resource "null_resource" "mongodb" {
 
   # Bootstrap script can run on any instance of the cluster
   # So we just choose the first in this case
-  connection {
+  connection {          #to accept this connection you should connect with vpn
     host = module.mongodb.private_ip
     type = "ssh"
     user = "centos"

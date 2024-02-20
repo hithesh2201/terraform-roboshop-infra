@@ -18,8 +18,8 @@ output "subnet_id" {
   value = data.aws_subnet.pub-sub-vpc.id
 }
 
-data "aws_security_group" "allow_all_default_vpc" {
-  name = "allow-all"
+data "aws_ssm_parameter" "vpn_sg_id" {
+  name = "/${local.project_name}/${local.env}/vpn_sg_id"
 }
 
 data "aws_ami" "centos8" {
