@@ -81,3 +81,10 @@ resource "aws_ssm_parameter" "app_alb_sg_id" {
   value = module.app_alb.sg_id
   depends_on = [ module.app_alb.sg_id ]
 }
+
+resource "aws_ssm_parameter" "web_alb_sg_id" {
+  name  = "/${local.project_name}/${local.env}/web_alb_sg_id"
+  type  = "String"
+  value = module.web_alb.sg_id
+  depends_on = [ module.web_alb.sg_id ]
+}

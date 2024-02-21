@@ -33,7 +33,7 @@ resource "aws_lb_listener" "https" {
 
 resource "aws_route53_record" "web_alb" {
   zone_id = var.zone_id
-  name    = "*.web-dev"  # Replace with your desired record name
+  name    = "web-${local.env}"  # Replace with your desired record name
   type    = "A"
   alias {
     name                   = aws_lb.web_alb.dns_name

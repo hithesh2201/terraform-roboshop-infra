@@ -110,6 +110,15 @@ resource "aws_security_group_rule" "allow_all_for_vpn" {
    description              = "Inbound Rule to connect alb-app"
 }
 
+resource "aws_security_group_rule" "allow_1194_for_vpn" {
+  type              = "ingress"
+  from_port         = 1194
+  to_port           = 1194
+  protocol          = "tcp"
+  security_group_id = module.vpn.sg_id
+  cidr_blocks = ["0.0.0.0/0"]
+   description              = "Inbound Rule to connect alb-app"
+}
 
 
 
@@ -143,7 +152,6 @@ resource "aws_security_group_rule" "app_alb_to_app" {
 }
 
 resource "aws_security_group_rule" "app_alb_accepting_web" {
-  count=length(local.app_ids)
   type              = "ingress"
   from_port         = 80
   to_port           = 80
@@ -165,14 +173,6 @@ resource "aws_security_group_rule" "apps_to_app_alb" {
 }
 
 
-resource "aws_security_group_rule" "web_alb_internet" {
-  cidr_blocks = ["0.0.0.0/0"]
-  type                     = "ingress"
-  from_port                = 80
-  to_port                  = 80
-  protocol                 = "tcp"
-  security_group_id        = module.web_alb.sg_id
-  }
 
 resource "aws_security_group_rule" "web_alb_https" {
   cidr_blocks = ["0.0.0.0/0"]
@@ -191,6 +191,17 @@ resource "aws_security_group_rule" "web_alb_https" {
   protocol                 = "tcp"
   security_group_id        = module.web.sg_id
   }
+
+  resource "aws_security_group_rule" "web_accepting_vpn" {
+  source_security_group_id = module.vpn.sg_id
+  type                     = "ingress"
+  from_port                = 22
+  to_port                  = 22
+  protocol                 = "tcp"
+  security_group_id        = module.web.sg_id
+  }
+
+
 
   resource "aws_security_group_rule" "mongodb_catalogue" {
   source_security_group_id = module.catalogue.sg_id

@@ -1,5 +1,5 @@
 
-data "aws_ssm_parameter" "app_alb_sg_id" {
+data "aws_ssm_parameter" "web_alb_sg_id" {
   name = "/${local.project_name}/${local.env}/web_alb_sg_id"
   
 }

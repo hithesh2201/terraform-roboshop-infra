@@ -22,7 +22,6 @@ locals {
     data.aws_ssm_parameter.cart_sg_id.value,
     data.aws_ssm_parameter.shipping_sg_id.value,
     data.aws_ssm_parameter.payments_sg_id.value,
-    data.aws_ssm_parameter.web_sg_id.value
   ]
 }
 
