@@ -99,15 +99,6 @@ module "app_alb" {
   
 }
 
-resource "aws_security_group_rule" "allow_all_for_app_alb" {
-  type              = "ingress"
-  from_port         = 0
-  to_port           = 65535
-  protocol          = "-1"
-  security_group_id = module.app_alb.sg_id
-  cidr_blocks = ["0.0.0.0/0"]
-   description              = "Inbound Rule to connect alb-app"
-}
 
 resource "aws_security_group_rule" "allow_all_for_vpn" {
   type              = "ingress"
@@ -151,6 +142,17 @@ resource "aws_security_group_rule" "app_alb_to_app" {
    description              = "Inbound Rule to connect with vpn"
 }
 
+resource "aws_security_group_rule" "app_alb_accepting_web" {
+  count=length(local.app_ids)
+  type              = "ingress"
+  from_port         = 80
+  to_port           = 80
+  protocol          = "tcp"
+  security_group_id = module.app_alb.sg_id
+  source_security_group_id =  module.web.sg_id
+   description              = "Inbound Rule to connect with vpn"
+}
+
 resource "aws_security_group_rule" "apps_to_app_alb" {
   count=length(local.app_ids)
   type              = "ingress"
@@ -161,15 +163,6 @@ resource "aws_security_group_rule" "apps_to_app_alb" {
   source_security_group_id = module.app_alb.sg_id
    description              = "Inbound Rule to connect with vpn"
 }
-#openvpn
-resource "aws_security_group_rule" "vpn_home" {
-  security_group_id = module.vpn.sg_id
-  type                     = "ingress"
-  from_port                = 22
-  to_port                  = 22
-  protocol                 = "ssh"
-  cidr_blocks = ["0.0.0.0/0"] #ideally your home public IP address, but it frequently changes
-}
 
 
 resource "aws_security_group_rule" "web_alb_internet" {
@@ -179,6 +172,24 @@ resource "aws_security_group_rule" "web_alb_internet" {
   to_port                  = 80
   protocol                 = "tcp"
   security_group_id        = module.web_alb.sg_id
+  }
+
+resource "aws_security_group_rule" "web_alb_https" {
+  cidr_blocks = ["0.0.0.0/0"]
+  type                     = "ingress"
+  from_port                = 443
+  to_port                  = 443
+  protocol                 = "tcp"
+  security_group_id        = module.web_alb.sg_id
+  }
+
+  resource "aws_security_group_rule" "web_accepting_web_alb_http" {
+  source_security_group_id = module.web_alb.sg_id
+  type                     = "ingress"
+  from_port                = 80
+  to_port                  = 80
+  protocol                 = "tcp"
+  security_group_id        = module.web.sg_id
   }
 
   resource "aws_security_group_rule" "mongodb_catalogue" {
@@ -215,8 +226,8 @@ resource "aws_security_group_rule" "mysql_shipping" {
 resource "aws_security_group_rule" "rabbitmq_payments" {
   
   type              = "ingress"
-  from_port         = 3306
-  to_port           = 3306
+  from_port         = 5672
+  to_port           = 5672
   protocol          = "tcp"
   security_group_id = module.rabbitmq.sg_id
   source_security_group_id = module.payments.sg_id
