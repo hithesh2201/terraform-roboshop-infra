@@ -8,7 +8,7 @@ variable "common_tags" {
 
 variable "tags" {
   default = {
-    Component = "shipping"
+    Component = "cdn"
   }
 }
 
@@ -19,10 +19,6 @@ variable "environment" {
   default = "dev"
 }
 
-
 variable "zone_name" {
   default = "hiteshshop.online"
-}
-variable "iam_instance_profile" {
-  default = "ShellScriptRoleForRoboshop"
 }
