@@ -143,6 +143,17 @@ module "vpn" {
 resource "aws_security_group_rule" "app_alb_to_app" {
   count=length(local.app_ids)
   type              = "ingress"
+  from_port         = 80
+  to_port           = 80
+  protocol          = "tcp"
+  security_group_id = module.app_alb.sg_id
+  source_security_group_id =  local.app_ids[count.index]
+   description              = "Inbound Rule to connect with vpn"
+}
+
+resource "aws_security_group_rule" "apps_to_app_alb" {
+  count=length(local.app_ids)
+  type              = "ingress"
   from_port         = 8080
   to_port           = 8080
   protocol          = "tcp"
@@ -150,14 +161,13 @@ resource "aws_security_group_rule" "app_alb_to_app" {
   source_security_group_id = module.app_alb.sg_id
    description              = "Inbound Rule to connect with vpn"
 }
-
 #openvpn
 resource "aws_security_group_rule" "vpn_home" {
   security_group_id = module.vpn.sg_id
   type                     = "ingress"
-  from_port                = 0
-  to_port                  = 65535
-  protocol                 = "-1"
+  from_port                = 22
+  to_port                  = 22
+  protocol                 = "ssh"
   cidr_blocks = ["0.0.0.0/0"] #ideally your home public IP address, but it frequently changes
 }
 
