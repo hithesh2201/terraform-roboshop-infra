@@ -3,7 +3,7 @@ data "aws_ssm_parameter" "vpc_id" {
 }
 
 data "aws_ssm_parameter" "payment_sg_id" {
-  name = "/${var.project_name}/${var.environment}/payment_sg_id"
+  name = "/${var.project_name}/${var.environment}/payments_sg_id"
 }
 
 data "aws_ssm_parameter" "private_subnet_ids" {
