@@ -1,5 +1,5 @@
 module "shipping" {
-  source = "../../terraform-roboshop-app"
+  source = "git::https://github.com/hithesh2201/terraform-roboshop-app.git//?ref=main"
   vpc_id = data.aws_ssm_parameter.vpc_id.value
   component_sg_id = data.aws_ssm_parameter.shipping_sg_id.value
   private_subnet_ids = split(",", data.aws_ssm_parameter.private_subnet_ids.value) #list of private subnte_ids
