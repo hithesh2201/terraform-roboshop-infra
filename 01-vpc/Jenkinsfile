@@ -41,13 +41,12 @@ pipeline {
                 message "Should we continue with ${params.deploy} ?"
                 ok "Yes, we should."
             }
-            steps {
+
                 steps {
                 sh """
                 cd 01-vpc
                 terraform ${params.deploy} -auto-approve
                 """
-            }
             }
         }
     }
