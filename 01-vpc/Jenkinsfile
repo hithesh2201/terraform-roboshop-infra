@@ -68,7 +68,7 @@ pipeline {
         always {
             echo "Cleaning up..."
             // Add any cleanup steps that should run regardless of success or failure
-            deleteDir() #after every build it will remove folder and logs of current build
+            deleteDir() //after every build it will remove folder and logs of current build
         }
     }
 }
