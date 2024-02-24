@@ -1,0 +1,74 @@
+pipeline {
+   agent {
+        label 'agent-1'
+    }
+    // agent any
+    parameters {
+        choice(name: 'deploy', choices: ['apply','destroy'], description: 'Select the action')
+        
+    }
+
+    options {
+        timeout(time: 1, unit: 'HOURS') // Set a timeout for the entire pipeline
+        ansiColor("xterm") 
+        disableConcurrentBuilds()
+
+    }
+
+    stages {
+        stage('init') {
+            steps {
+                sh """
+                cd 01-vpc
+                terraform init
+                """
+            }
+        }
+
+        stage('plan') {
+            steps {
+               steps {
+                sh """
+                cd 01-vpc
+                terraform plan
+                """
+            }
+            }
+        }
+
+        stage('apply') {
+
+            input {
+                message "Should we continue with ${params.deploy} ?"
+                ok "Yes, we should."
+            }
+            steps {
+                steps {
+                sh """
+                cd 01-vpc
+                terraform ${params.deploy} -auto-approve
+                """
+            }
+            }
+        }
+    }
+
+    post {
+        success {
+            echo "Pipeline completed successfully. Sending notification..."
+            deleteDir()  
+            // Add notification steps for successful builds
+        }
+
+        failure {
+            echo "Pipeline failed. Sending notification..."
+            // Add notification steps for failed builds
+        }
+
+        always {
+            echo "Cleaning up..."
+            // Add any cleanup steps that should run regardless of success or failure
+            deleteDir() #after every build it will remove folder and logs of current build
+        }
+    }
+}
