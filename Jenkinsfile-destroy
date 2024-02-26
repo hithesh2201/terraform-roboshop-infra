@@ -16,7 +16,16 @@ pipeline {
     }
 
     stages {
-        
+        stage('VPC') {
+            steps {
+                sh """
+                cd 01-vpc
+                terraform init
+                terraform plan
+                terraform apply -auto-approve
+                """
+            }
+        }
 
         stage('DB and APP_ALB') {
             steps {
