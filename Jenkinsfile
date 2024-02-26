@@ -50,28 +50,28 @@ pipeline {
 
     
 
-        stage('DB & APP_ALB') {
+        stage('DB and APP_ALB') {
             steps {
-            parallel(
-               steps {
-                sh """
-                cd 04-databases
-                terraform init
-                terraform plan
-                terraform ${params.deploy} -auto-approve
-                """
-            },
-               steps {
-                sh """
-                cd 05-app_alb
-                terraform init
-                terraform plan
-                terraform ${params.deploy} -auto-approve
-                """
-            }
+                parallel(
+                    "DB": {
+                        sh """
+                        cd 04-databases
+                        terraform init
+                        terraform plan
+                        terraform ${params.deploy} -auto-approve
+                        """
+                    },
+                    "APP_ALB": {
+                        sh """
+                        cd 05-app_alb
+                        terraform init
+                        terraform plan
+                        terraform ${params.deploy} -auto-approve
+                        """
+                    }
                 )
             }
-            }
+        }
 
         
 
