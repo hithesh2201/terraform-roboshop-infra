@@ -48,6 +48,7 @@ pipeline {
                 terraform ${params.deploy} -auto-approve
                 """
             }
+
         }
     }
 
