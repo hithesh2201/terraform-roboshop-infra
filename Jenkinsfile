@@ -52,7 +52,7 @@ pipeline {
 
         stage('DB & APP_ALB') {
             steps {
-                parallel(
+            parallel(
                steps {
                 sh """
                 cd 04-databases
@@ -60,7 +60,7 @@ pipeline {
                 terraform plan
                 terraform ${params.deploy} -auto-approve
                 """
-            }
+            },
                steps {
                 sh """
                 cd 05-app_alb
