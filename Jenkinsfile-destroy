@@ -16,7 +16,7 @@ pipeline {
     }
 
     stages {
-        stage('VPC') {
+        stage('VPC_apply') {
             steps {
                 sh """
                 cd 01-vpc
